@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
+import static java.lang.Double.*;
 import static java.lang.Integer.*;
 import static java.lang.Integer.parseInt;
 
@@ -29,10 +30,19 @@ public class StringCalculator {
             return "Number expected but EOF found.";
         }
 
-        String[] cadenaNumeros = text.split("[,\n]");
+        String[] numbersString = text.split("[,\n]");
 
+        if (isNegative(numbersString)){
+            String negativeNumber = "";
+            for (String s : numbersString) {
+                if (parseInt(s) < 0) {
+                    negativeNumber += s;
+                }
+            }
+            return "Negative not allowed: " + negativeNumber;
+        }
 
-        if(isDecimal(cadenaNumeros)){
+        if(isDecimal(numbersString)){
             double[] nums = Arrays.stream(text.substring(0, text.length()).split("[,\n]"))
                     .map(String::trim).mapToDouble(Double::parseDouble).toArray();
     
@@ -41,24 +51,22 @@ public class StringCalculator {
             return String.valueOf(sum);
 
         } else {
-            int suma = 0;
+            int sum = 0;
 
-            for (String cadenaNumero : cadenaNumeros) {
-                suma += parseInt(cadenaNumero);
+            for (String numberString : numbersString) {
+                sum += parseInt(numberString);
             }
 
-            return String.valueOf(suma);
+            return String.valueOf(sum);
         }
     }
 
-    public static boolean isDecimal(String[] cad){
-
-        for (String cadena : cad) {
-            if (cadena.contains(".")) {
+    public static boolean isDecimal(String[] s){
+        for (String string : s) {
+            if (string.contains(".")) {
                 return true;
             }
         }
-
         return false;
     }
 
@@ -66,9 +74,27 @@ public class StringCalculator {
         return new BigDecimal(d).setScale(1, RoundingMode.HALF_EVEN).doubleValue();
     }
 
-    public static boolean hasTooMuchCommas(String cad){
+    public static boolean hasTooMuchCommas(String s){
+        return s.contains(",,") || (s.charAt(0) == ',') || (s.charAt(s.length() - 1) == ',');
+    }
 
-        return cad.contains(",,") || (cad.charAt(0) == ',') || (cad.charAt(cad.length() - 1) == ',');
+    public static boolean isNegative(String[] s){
 
+        if(isDecimal(s)){
+            for (String value : s) {
+                double negativeNum = parseDouble(value);
+                if (negativeNum < 0) {
+                    return true;
+                }
+            }
+        } else {
+            for (String value : s) {
+                int negativeNum = parseInt(value);
+                if (negativeNum < 0) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
